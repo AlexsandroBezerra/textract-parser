@@ -78,6 +78,30 @@ class OutputGenerator:
         FileHelper.writeCSVRaw(
             "{}-page-{}-tables.csv".format(self.fileName, p), csvData)
 
+    def _outputAllTables(self):
+        tables = []
+
+        for page in self.document.pages:
+            for table in page.tables:
+                tables.append(table)
+
+        csvData = []
+
+        for table in tables:
+            csvRow = []
+            csvRow.append("Table")
+            csvData.append(csvRow)
+            for row in table.rows:
+                csvRow = []
+                for cell in row.cells:
+                    csvRow.append(cell.text)
+                csvData.append(csvRow)
+            csvData.append([])
+            csvData.append([])
+
+        FileHelper.writeCSVRaw(
+            "{}-tables.csv".format(self.fileName), csvData)
+
     def _outputTablePretty(self, page, p, table_format='github'):
         for table_number, table in enumerate(page.tables):
             rows_list = list()
@@ -101,25 +125,28 @@ class OutputGenerator:
 
         print("Total Pages in Document: {}".format(len(self.document.pages)))
 
-        p = 1
-        for page in self.document.pages:
+        if (self.tables):
+            self._outputAllTables()
 
-            FileHelper.writeToFile(
-                "{}-page-{}-response.json".format(self.fileName, p),
-                json.dumps(page.blocks))
+        # p = 1
+        # for page in self.document.pages:
 
-            self._outputWords(page, p)
+        #     # FileHelper.writeToFile(
+        #     #     "{}-page-{}-response.json".format(self.fileName, p),
+        #     #     json.dumps(page.blocks))
 
-            self._outputText(page, p)
+        #     # self._outputWords(page, p)
 
-            if (self.forms):
-                self._outputForm(page, p)
+        #     # self._outputText(page, p)
 
-            if (self.tables):
-                self._outputTable(page, p)
-                self._outputTablePretty(page, p)
+        #     if (self.forms):
+        #         self._outputForm(page, p)
 
-            p = p + 1
+        #     if (self.tables):
+        #         self._outputTable(page, p)
+        #         self._outputTablePretty(page, p)
+
+        #     p = p + 1
 
     def _insights(self, start, subText, sentiment, syntax, entities,
                   keyPhrases, ta):
